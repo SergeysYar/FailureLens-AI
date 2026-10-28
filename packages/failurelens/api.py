@@ -1,15 +1,17 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Literal
 
 import pandas as pd
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
 
 from .demo import generate_demo
+from .explainability import explain_linear
 from .features import make_features
 
-app = FastAPI(title="FailureLens AI", version="0.1.0")
+app = FastAPI(title="FailureLens AI", version="0.2.0", description="Predictive equipment-failure intelligence API")
 DATA = Path(__file__).resolve().parents[2] / "data/demo/telemetry.csv"
 
 
@@ -21,6 +23,7 @@ class Telemetry(BaseModel):
     smart_187: float = Field(ge=0)
     temperature: float
     read_errors: float = Field(ge=0)
+    horizon_days: Literal[7, 30] = 7
 
 
 def dataset() -> pd.DataFrame:
@@ -35,6 +38,21 @@ def health(): return {"status": "ok", "demo": not DATA.exists()}
 def summary():
     df = dataset()
     return {"devices": int(df.device_id.nunique()), "observations": len(df), "demo": not DATA.exists()}
+
+
+@app.get("/api/v1/model")
+def model_summary():
+    import json
+    artifact = Path(__file__).resolve().parents[2] / "artifacts/baseline_7d.json"
+    return json.loads(artifact.read_text(encoding="utf-8")) if artifact.exists() else {"status": "not_trained", "message": "Run `make train` first."}
+
+
+@app.get("/api/v1/experiments")
+def experiments():
+    import json
+    root = Path(__file__).resolve().parents[2] / "artifacts/experiments"
+    files = sorted(root.glob("horizon_*.json"))
+    return [json.loads(path.read_text(encoding="utf-8")) for path in files]
 
 
 @app.get("/api/v1/devices")
@@ -53,7 +71,14 @@ def device(device_id: str):
 @app.post("/api/v1/predict")
 def predict(payload: Telemetry):
     row = pd.DataFrame([payload.model_dump()])
-    X, _ = make_features(row.assign(failed=0))
-    score = min(0.99, max(0.01, float((X["smart_5"] / 50 + X["smart_187"] / 40 + X["read_errors"] / 20) / 3)))
-    return {"device_id": payload.device_id, "risk_7d": round(score, 4), "risk_level": "high" if score >= .6 else "medium" if score >= .3 else "low", "demo": True}
+    horizon = payload.horizon_days
+    row = row.drop(columns=["horizon_days"])
+    X, _ = make_features(row.assign(failed=0), horizon=horizon)
+    artifact = Path(__file__).resolve().parents[2] / f"artifacts/baseline_{horizon}d.joblib"
+    if not artifact.exists():
+        raise HTTPException(503, "Model is not trained. Run `make train` first.")
+    import joblib
+    bundle = joblib.load(artifact)
+    score = float(bundle["model"].predict_proba(X[bundle["feature_columns"]])[:, 1][0])
+    return {"device_id": payload.device_id, "horizon_days": horizon, "risk": round(score, 4), "risk_level": "high" if score >= .6 else "medium" if score >= .3 else "low", "explanations": explain_linear(artifact, X.iloc[0].to_dict()), "demo": not DATA.exists()}
 

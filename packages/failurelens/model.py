@@ -10,19 +10,20 @@ from sklearn.metrics import average_precision_score, roc_auc_score
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 
+from .evaluation import _probabilities, chronological_split, pd_to_dates
 from .features import make_features
 
 
-def train(frame: pd.DataFrame, artifact: str | Path) -> dict:
-    X, y = make_features(frame)
-    split = max(1, int(len(X) * 0.8))
+def train(frame: pd.DataFrame, artifact: str | Path, horizon: int = 7) -> dict:
+    X, y = make_features(frame, horizon=horizon)
+    split = chronological_split(pd_to_dates(frame, len(X)))
     model = make_pipeline(StandardScaler(), LogisticRegression(class_weight="balanced", max_iter=500, random_state=7))
-    model.fit(X.iloc[:split], y.iloc[:split])
-    probabilities = model.predict_proba(X.iloc[split:])[:, 1] if len(X) > split else []
-    metrics = {"rows": len(X), "positive_rate": float(y.mean())}
-    if len(set(y.iloc[split:])) > 1:
-        metrics.update({"pr_auc": float(average_precision_score(y.iloc[split:], probabilities)),
-                        "roc_auc": float(roc_auc_score(y.iloc[split:], probabilities))})
+    model.fit(X.iloc[split.train], y.iloc[split.train])
+    probabilities = _probabilities(model, X.iloc[split.test]) if len(split.test) else []
+    metrics = {"rows": len(X), "positive_rate": float(y.mean()), "horizon_days": horizon, "protocol": "chronological holdout"}
+    if len(set(y.iloc[split.test])) > 1:
+        metrics.update({"pr_auc": float(average_precision_score(y.iloc[split.test], probabilities)),
+                        "roc_auc": float(roc_auc_score(y.iloc[split.test], probabilities))})
     target = Path(artifact)
     target.parent.mkdir(parents=True, exist_ok=True)
     joblib.dump({"model": model, "feature_columns": list(X.columns)}, target)

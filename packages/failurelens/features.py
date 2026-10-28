@@ -18,6 +18,8 @@ def make_features(frame: pd.DataFrame, horizon: int = 7) -> tuple[pd.DataFrame, 
     for col in BASE:
         df[f"{col}_roll7_mean"] = grouped[col].transform(lambda s: s.rolling(7, min_periods=1).mean())
         df[f"{col}_delta7"] = grouped[col].transform(lambda s: s - s.shift(7))
+        df[f"{col}_std7"] = grouped[col].transform(lambda s: s.rolling(7, min_periods=2).std())
+        df[f"{col}_missing_rate7"] = grouped[col].transform(lambda s: s.isna().rolling(7, min_periods=1).mean())
     df["observations"] = grouped.cumcount() + 1
     failure_flag = df["failed"] if "failed" in df.columns else pd.Series(0, index=df.index)
     failure_dates = df.loc[failure_flag.eq(1)].groupby("device_id")["date"].min()
@@ -25,7 +27,7 @@ def make_features(frame: pd.DataFrame, horizon: int = 7) -> tuple[pd.DataFrame, 
     for device, failure_date in failure_dates.items():
         y.loc[(df["device_id"] == device) & (df["date"] < failure_date) &
               (df["date"] >= failure_date - pd.Timedelta(days=horizon))] = 1
-    feature_cols = [c for c in df.columns if c.endswith(("_roll7_mean", "_delta7"))] + BASE + ["observations"]
-    X = df[feature_cols].replace([float("inf"), -float("inf")], pd.NA).fillna(0.0)
+    feature_cols = [c for c in df.columns if c.endswith(("_roll7_mean", "_delta7", "_std7", "_missing_rate7"))] + BASE + ["observations"]
+    X = df[feature_cols].replace([float("inf"), -float("inf")], pd.NA).fillna(0.0).astype(float)
     return X, y
 

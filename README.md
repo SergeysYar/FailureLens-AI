@@ -12,6 +12,7 @@ python -m venv .venv
 pip install -e ".[dev]"
 python -m failurelens.cli demo
 python -m failurelens.cli train
+python -m failurelens.cli experiment --horizon 7
 uvicorn failurelens.api:app --reload
 ```
 
@@ -22,6 +23,7 @@ Open `http://127.0.0.1:8000/docs` for the API. A small static dashboard is avail
 ```bash
 make demo       # generate deterministic synthetic telemetry
 make train      # train logistic regression on generated telemetry
+make experiment # run the chronological baseline comparison
 make test       # run unit tests
 docker compose up --build
 ```
@@ -35,10 +37,14 @@ The real dataset is downloaded only by an explicit command and is not required f
 - `GET /api/v1/devices`
 - `GET /api/v1/devices/{device_id}`
 - `POST /api/v1/predict`
+- `GET /api/v1/model`
+- `GET /api/v1/experiments`
 
 ## Limitations
 
 The demo is not a safety-critical maintenance system. The Backblaze data has observational limitations, failure labels are sparse, and production use requires site-specific validation, calibration, alert-cost policy, monitoring, and human review.
+
+The checked-in experiment result is generated from synthetic data and is illustrative only; it must not be presented as real-world model performance.
 
 ## Data source
 
