@@ -3,9 +3,43 @@ services:
     build: .
     command: uvicorn failurelens.api:app --host 0.0.0.0 --port 8000
     ports: ["8000:8000"]
+    environment:
+      FAILURELENS_ENV: ${FAILURELENS_ENV:-development}
+      FAILURELENS_BOOTSTRAP_DEMO: ${FAILURELENS_BOOTSTRAP_DEMO:-1}
+    depends_on:
+      postgres:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
       interval: 10s
       timeout: 3s
       retries: 5
+  web:
+    image: nginx:1.27-alpine
+    ports: ["3000:80"]
+    volumes:
+      - ./web:/usr/share/nginx/html:ro
+    depends_on: [api]
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-failurelens}
+      POSTGRES_USER: ${POSTGRES_USER:-failurelens}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change-me-locally}
+    volumes: ["failurelens_pgdata:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:v2.14.2
+    profiles: ["tracking"]
+    command: mlflow server --host 0.0.0.0 --port 5000 --backend-store-uri sqlite:///mlflow.db --default-artifact-root /mlruns
+    ports: ["5000:5000"]
+    volumes: ["failurelens_mlflow:/mlruns"]
+
+volumes:
+  failurelens_pgdata:
+  failurelens_mlflow:
 

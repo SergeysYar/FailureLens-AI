@@ -11,6 +11,8 @@ artifacts/*.json
 artifacts/experiments/
 artifacts/plots/
 artifacts/research/
+artifacts/registry.json
+artifacts/benchmark.json
 catboost_info/
 node_modules/
 .next/

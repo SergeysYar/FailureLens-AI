@@ -1,0 +1,9 @@
+.git
+.pytest_cache
+.ruff_cache
+__pycache__
+*.pyc
+data/raw
+data/processed
+artifacts/research
+catboost_info

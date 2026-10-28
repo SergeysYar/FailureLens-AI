@@ -32,6 +32,19 @@ The real dataset is downloaded only by an explicit command and is not required f
 
 Phase 3 research adds censoring-aware labels, advanced temporal features, model comparison, ablation, bootstrap intervals, backtesting, and survival analysis. See [docs/research.md](docs/research.md).
 
+## Production MLOps
+
+The production path includes horizon-specific model artifacts, explicit candidate/staging/production registry states, rollback, readiness/liveness checks, batch inference, request metrics, PSI drift reports, structured logs, CI smoke checks, and a non-root Docker image. See [docs/mlops.md](docs/mlops.md), [docs/security.md](docs/security.md), and [docs/performance.md](docs/performance.md).
+
+```bash
+make data-validate
+make train
+make register-model
+make promote-model VERSION=<version>
+make monitor-drift
+docker compose up --build
+```
+
 ## API
 
 - `GET /health`

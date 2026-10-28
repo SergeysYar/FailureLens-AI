@@ -17,8 +17,12 @@ jobs:
       - run: pytest -q
       - run: python -m failurelens.cli demo
       - run: python -m failurelens.cli experiment --horizon 7
+      - run: python -m failurelens.cli data-validate
+      - run: python -m failurelens.cli benchmark --horizon 7
+      - run: python -m pip check
   docker:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - run: docker build -t failurelens-ai .
+      - run: docker compose config
