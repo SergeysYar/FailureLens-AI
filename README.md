@@ -183,3 +183,5 @@ Released under the [MIT License](LICENSE).
 ## Public release checklist
 
 See [docs/public-release.md](docs/public-release.md) for the recommended GitHub About description, topics, social preview asset, and an honest guided demo script.
+
+The complete documentation index is at [docs/README.md](docs/README.md).

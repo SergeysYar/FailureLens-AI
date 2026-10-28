@@ -10,13 +10,12 @@ from sklearn.metrics import average_precision_score, roc_auc_score
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 
-from .evaluation import _probabilities, chronological_split, pd_to_dates
-from .features import make_features
+from .evaluation import _probabilities, chronological_split, supervised_data
 
 
 def train(frame: pd.DataFrame, artifact: str | Path, horizon: int = 7) -> dict:
-    X, y = make_features(frame, horizon=horizon)
-    split = chronological_split(pd_to_dates(frame, len(X)))
+    X, y, dates = supervised_data(frame, horizon)
+    split = chronological_split(dates)
     model = make_pipeline(StandardScaler(), LogisticRegression(class_weight="balanced", max_iter=500, random_state=7))
     model.fit(X.iloc[split.train], y.iloc[split.train])
     probabilities = _probabilities(model, X.iloc[split.test]) if len(split.test) else []

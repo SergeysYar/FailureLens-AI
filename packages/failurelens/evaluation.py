@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from typing import Any
 
 import numpy as np
+import pandas as pd
 from sklearn.dummy import DummyClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import (
@@ -16,7 +17,7 @@ from sklearn.metrics import (
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 
-from .features import make_features
+from .features import make_supervised
 
 
 @dataclass(frozen=True)
@@ -55,8 +56,7 @@ def _probabilities(model, X):
 
 
 def run_experiments(frame, horizon: int = 7) -> dict[str, Any]:
-    X, y = make_features(frame, horizon=horizon)
-    dates = pd_to_dates(frame, len(X))
+    X, y, dates = supervised_data(frame, horizon)
     split = chronological_split(dates)
     output: dict[str, Any] = {"horizon_days": horizon, "protocol": "chronological 60/20/20", "models": {}}
     models = {
@@ -70,6 +70,14 @@ def run_experiments(frame, horizon: int = 7) -> dict[str, Any]:
         output["models"][name] = {"validation": _metrics(y.iloc[split.validation].to_numpy(), validation_prob),
                                   "test": _metrics(y.iloc[split.test].to_numpy(), test_prob)}
     return output
+
+
+def supervised_data(frame, horizon: int):
+    X, y, eligible = make_supervised(frame, horizon=horizon)
+    normalized = frame.copy()
+    normalized["date"] = pd.to_datetime(normalized["date"])
+    normalized = normalized.sort_values(["device_id", "date"]).drop_duplicates(["device_id", "date"]).reset_index(drop=True)
+    return X, y, normalized.loc[eligible, "date"].to_numpy()
 
 
 def pd_to_dates(frame, n: int):
