@@ -55,6 +55,14 @@ def experiments():
     return [json.loads(path.read_text(encoding="utf-8")) for path in files]
 
 
+@app.get("/api/v1/research")
+def research_results():
+    import json
+    root = Path(__file__).resolve().parents[2] / "artifacts/research"
+    files = sorted(root.glob("research_h*_*.json"))
+    return [json.loads(path.read_text(encoding="utf-8")) for path in files]
+
+
 @app.get("/api/v1/devices")
 def devices():
     df = dataset()

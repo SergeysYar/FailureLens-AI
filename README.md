@@ -30,6 +30,8 @@ docker compose up --build
 
 The real dataset is downloaded only by an explicit command and is not required for CI or demo mode. See [docs/dataset.md](docs/dataset.md) and [docs/methodology.md](docs/methodology.md).
 
+Phase 3 research adds censoring-aware labels, advanced temporal features, model comparison, ablation, bootstrap intervals, backtesting, and survival analysis. See [docs/research.md](docs/research.md).
+
 ## API
 
 - `GET /health`
@@ -39,6 +41,7 @@ The real dataset is downloaded only by an explicit command and is not required f
 - `POST /api/v1/predict`
 - `GET /api/v1/model`
 - `GET /api/v1/experiments`
+- `GET /api/v1/research`
 
 ## Limitations
 
