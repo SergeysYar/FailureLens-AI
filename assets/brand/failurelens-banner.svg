@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 320" role="img" aria-labelledby="title desc">
+  <title id="title">FailureLens AI</title>
+  <desc id="desc">Predict failures before they happen.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1"><stop stop-color="#0B1020"/><stop offset="1" stop-color="#111827"/></linearGradient>
+    <linearGradient id="accent" x1="0" x2="1"><stop stop-color="#22D3EE"/><stop offset="1" stop-color="#8B5CF6"/></linearGradient>
+    <filter id="glow"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+  <rect width="1280" height="320" rx="28" fill="url(#bg)"/>
+  <g opacity=".18" stroke="#22D3EE" stroke-width="1"><path d="M720 0v320M800 0v320M880 0v320M960 0v320M1040 0v320M1120 0v320M1200 0v320"/><path d="M680 64h600M680 128h600M680 192h600M680 256h600"/></g>
+  <path d="M670 245 C750 210 775 255 840 218 S950 110 1015 165 1105 212 1270 75" fill="none" stroke="url(#accent)" stroke-width="5" filter="url(#glow)"/>
+  <g fill="#22D3EE"><circle cx="840" cy="218" r="6"/><circle cx="1015" cy="165" r="6"/><circle cx="1270" cy="75" r="6"/></g>
+  <circle cx="1080" cy="145" r="88" fill="none" stroke="#22D3EE" stroke-opacity=".5" stroke-width="2"/><circle cx="1080" cy="145" r="60" fill="none" stroke="#8B5CF6" stroke-width="7"/><circle cx="1080" cy="145" r="28" fill="url(#accent)" opacity=".9"/>
+  <text x="72" y="130" font-family="Inter,Arial,sans-serif" font-size="64" font-weight="800" fill="#F8FAFC">Failure<tspan fill="url(#accent)">Lens</tspan> AI</text>
+  <text x="76" y="184" font-family="Inter,Arial,sans-serif" font-size="24" fill="#CBD5E1">Predict failures before they happen.</text>
+  <text x="76" y="235" font-family="JetBrains Mono,Consolas,monospace" font-size="13" letter-spacing="2" fill="#94A3B8">EXPLAINABLE PREDICTIVE MAINTENANCE</text>
+</svg>
