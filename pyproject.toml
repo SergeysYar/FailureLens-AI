@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "failurelens-ai"
+version = "0.1.0"
+description = "Leakage-safe predictive equipment failure intelligence MVP"
+requires-python = ">=3.10"
+dependencies = [
+  "fastapi>=0.110,<1",
+  "uvicorn[standard]>=0.29,<1",
+  "numpy>=1.26,<3",
+  "pandas>=2.1,<3",
+  "scikit-learn>=1.4,<2",
+  "joblib>=1.3,<2",
+  "pydantic>=2.6,<3",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8,<9", "httpx>=0.27,<1", "ruff>=0.6,<1"]
+
+[tool.setuptools.packages.find]
+where = ["packages"]
+
+[tool.pytest.ini_options]
+pythonpath = ["packages"]
+

@@ -1,0 +1,14 @@
+*.egg-info/
+__pycache__/
+.pytest_cache/
+.venv/
+.env
+data/raw/
+data/processed/
+data/demo/*.csv
+artifacts/*.joblib
+artifacts/*.json
+node_modules/
+.next/
+dist/
+

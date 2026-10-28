@@ -1,0 +1,5 @@
+<!doctype html><meta charset="utf-8"><title>FailureLens AI</title>
+<style>body{font:16px system-ui;max-width:900px;margin:40px auto;padding:0 20px;background:#0b1220;color:#e5edf7}section{background:#131e31;padding:24px;border-radius:16px;margin:16px 0}button{padding:10px 16px;border:0;border-radius:8px;background:#4f8cff;color:white}</style>
+<h1>FailureLens AI</h1><p>Predictive equipment-failure intelligence <b>DEMO / SYNTHETIC</b></p><section><h2>Fleet summary</h2><pre id="summary">Loading…</pre><button onclick="load()">Refresh</button></section>
+<script>async function load(){const r=await fetch('http://127.0.0.1:8000/api/v1/summary');document.querySelector('#summary').textContent=JSON.stringify(await r.json(),null,2)}load()</script>
+
